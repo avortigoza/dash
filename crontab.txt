@@ -1,0 +1,1 @@
+0 9 * * 5 /docker_status_report.sh >> /var/log/cron.log 2>&1
