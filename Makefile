@@ -59,3 +59,24 @@ all: restart test
 
 clean: stop
 	-docker rmi $(IMAGE_NAME)
+
+## --- DASH API targets ---
+api-build:
+docker build -t dash-api -f Dockerfile.api .
+
+api-stop:
+-docker stop dash-api
+-docker rm dash-api
+
+api-run: api-stop
+docker run -d --name dash-api \
+--restart unless-stopped \
+-e REPORT_HOSTNAME="vmmams-core" \
+-v /var/run/docker.sock:/var/run/docker.sock:ro \
+-p 5000:5000 \
+dash-api
+
+api-restart: api-stop api-build api-run
+
+api-logs:
+docker logs dash-api
