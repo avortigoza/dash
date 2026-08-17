@@ -37,12 +37,14 @@ def get_all_containers():
     result = []
     for c in client.containers.list(all=True):
         label = classify(c)
+        labels = c.attrs["Config"].get("Labels") or {}
         result.append({
             "name": c.name,
             "status": c.attrs["State"]["Status"],
             "health": c.attrs["State"].get("Health", {}).get("Status"),
             "label": label,
             "image": c.attrs["Config"]["Image"],
+            "compose_project": labels.get("com.docker.compose.project", ""),
         })
     return result
 

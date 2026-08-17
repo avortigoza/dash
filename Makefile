@@ -71,7 +71,8 @@ api-stop:
 api-run: api-stop
 	docker run -d --name dash-api \
 		--restart unless-stopped \
-		-e REPORT_HOSTNAME="vmmams-core" \
+		-e REPORT_HOSTNAME="$$(hostname)" \
+		-e API_KEY="$(API_KEY)" \
 		-v /var/run/docker.sock:/var/run/docker.sock:ro \
 		-p 5000:5000 \
 		dash-api
