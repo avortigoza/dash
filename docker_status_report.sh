@@ -162,7 +162,7 @@ build_host_section() {
       APP_COLOR[$APP]="$COLOR"
       APP_DETAILS[$APP]="${COMPONENT}: ${LABEL}"
     else
-      APP_DETAILS[$APP]+=" &middot; ${COMPONENT}: ${LABEL}"
+      APP_DETAILS[$APP]+=" <span style=\"font-size:15px;\">&middot;</span> ${COMPONENT}: ${LABEL}"
       if [ "$THIS_RANK" -gt "${APP_RANK[$APP]}" ]; then
         APP_RANK[$APP]=$THIS_RANK
         APP_LABEL[$APP]="$LABEL"
