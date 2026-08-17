@@ -30,6 +30,37 @@ CONTAINER_IDS=$(docker ps -aq | sort)
 CONTAINER_TOTAL=$(echo "$CONTAINER_IDS" | wc -l)
 IDX=0
 
+# Known component suffixes that identify separate containers belonging to the
+# same logical app (e.g. axis_post_users_db + axis_post_users_web -> axis_post_users)
+COMPONENT_SUFFIXES="db web api worker cache redis mysql postgres postgresql nginx app frontend backend queue cron scheduler proxy celery beat"
+
+get_app_name() {
+  local n="$1"
+  local last="${n##*_}"
+  for s in $COMPONENT_SUFFIXES; do
+    if [ "$last" = "$s" ]; then
+      echo "${n%_*}"
+      return
+    fi
+  done
+  echo "$n"
+}
+
+# Severity ranking used to pick the "worst" status across an app's containers
+rank_for() {
+  case "$1" in
+    unhealthy) echo 4 ;;
+    stopped)   echo 4 ;;
+    created)   echo 2 ;;
+    running)   echo 1 ;;
+    healthy)   echo 0 ;;
+    *)         echo 3 ;;
+  esac
+}
+
+declare -A APP_SEEN APP_RANK APP_LABEL APP_COLOR APP_DETAILS
+APP_ORDER=()
+
 for ID in $CONTAINER_IDS; do
   IDX=$((IDX+1))
   INFO=$(docker inspect "$ID")
@@ -64,17 +95,51 @@ for ID in $CONTAINER_IDS; do
 
   TOTAL=$((TOTAL+1))
 
-  if [ "$IDX" -eq "$CONTAINER_TOTAL" ]; then
+  # Group this container under its app name, keeping the worst status seen
+  APP=$(get_app_name "$NAME")
+  COMPONENT="${NAME#${APP}_}"
+  [ "$COMPONENT" = "$NAME" ] && COMPONENT="$NAME"
+  THIS_RANK=$(rank_for "$LABEL")
+
+  if [ -z "${APP_SEEN[$APP]+x}" ]; then
+    APP_SEEN[$APP]=1
+    APP_ORDER+=("$APP")
+    APP_RANK[$APP]=$THIS_RANK
+    APP_LABEL[$APP]="$LABEL"
+    APP_COLOR[$APP]="$COLOR"
+    APP_DETAILS[$APP]="${COMPONENT}: ${LABEL}"
+  else
+    APP_DETAILS[$APP]+=" &middot; ${COMPONENT}: ${LABEL}"
+    if [ "$THIS_RANK" -gt "${APP_RANK[$APP]}" ]; then
+      APP_RANK[$APP]=$THIS_RANK
+      APP_LABEL[$APP]="$LABEL"
+      APP_COLOR[$APP]="$COLOR"
+    fi
+  fi
+done
+
+# Build one row per app (not per container)
+APP_TOTAL=${#APP_ORDER[@]}
+IDX=0
+for APP in "${APP_ORDER[@]}"; do
+  IDX=$((IDX+1))
+  if [ "$IDX" -eq "$APP_TOTAL" ]; then
     ROW_BORDER=""
   else
     ROW_BORDER="border-bottom:1px solid #e5e7eb;"
   fi
 
+  L_LABEL="${APP_LABEL[$APP]}"
+  L_COLOR="${APP_COLOR[$APP]}"
+  L_DETAILS="${APP_DETAILS[$APP]}"
+
   ROWS+="<tr>
-    <td style=\"padding:16px 24px;${ROW_BORDER}color:#0ea5e9;font-size:15px;font-weight:500;font-family:Arial,Helvetica,sans-serif;\">${NAME}</td>
+    <td style=\"padding:16px 24px;${ROW_BORDER}color:#0ea5e9;font-size:15px;font-weight:500;font-family:Arial,Helvetica,sans-serif;\">${APP}
+      <div style=\"margin-top:4px;color:#9ca3af;font-size:12px;font-weight:400;\">${L_DETAILS}</div>
+    </td>
     <td style=\"padding:16px 24px;${ROW_BORDER}font-family:Arial,Helvetica,sans-serif;\">
       <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr>
-        <td bgcolor=\"${COLOR}\" style=\"background:${COLOR};color:#ffffff;padding:6px 16px;border-radius:14px;font-size:13px;font-weight:600;font-family:Arial,Helvetica,sans-serif;text-align:center;\">${LABEL}</td>
+        <td bgcolor=\"${L_COLOR}\" style=\"background:${L_COLOR};color:#ffffff;padding:6px 16px;border-radius:14px;font-size:13px;font-weight:600;font-family:Arial,Helvetica,sans-serif;text-align:center;\">${L_LABEL}</td>
       </tr></table>
     </td>
   </tr>"
