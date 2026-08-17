@@ -162,7 +162,7 @@ build_host_section() {
       APP_COLOR[$APP]="$COLOR"
       APP_DETAILS[$APP]="${COMPONENT}: ${LABEL}"
     else
-      APP_DETAILS[$APP]+=" <span style=\"font-size:15px;\">&middot;</span> ${COMPONENT}: ${LABEL}"
+      APP_DETAILS[$APP]+=" &middot; ${COMPONENT}: ${LABEL}"
       if [ "$THIS_RANK" -gt "${APP_RANK[$APP]}" ]; then
         APP_RANK[$APP]=$THIS_RANK
         APP_LABEL[$APP]="$LABEL"
@@ -221,7 +221,7 @@ build_host_section() {
     <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">
     <tr><td bgcolor=\"#f9fafb\" style=\"background:#f9fafb;border-left:5px solid ${BORDER_COLOR};padding:16px 20px;border-radius:8px;\">
       <div style=\"font-size:17px;font-weight:700;color:#111827;\">${host_label}</div>
-      <div style=\"margin-top:4px;color:#6b7280;font-size:13px;\"><span style=\"color:#ec4899;font-weight:700;\">Health Score: ${HOST_HEALTH_SCORE}%</span> <span style=\"font-size:18px;\">&middot;</span> Total: ${TOTAL} <span style=\"font-size:18px;\">&middot;</span> Healthy: ${HEALTHY} <span style=\"font-size:18px;\">&middot;</span> Running: ${RUNNING} <span style=\"font-size:18px;\">&middot;</span> Stopped: ${STOPPED} <span style=\"font-size:18px;\">&middot;</span> Unhealthy: ${UNHEALTHY}</div>
+      <div style=\"margin-top:4px;color:#6b7280;font-size:13px;\"><span style=\"color:#ec4899;font-weight:700;\">Health Score: ${HOST_HEALTH_SCORE}%</span> &middot; Total: ${TOTAL} &middot; Healthy: ${HEALTHY} &middot; Running: ${RUNNING} &middot; Stopped: ${STOPPED} &middot; Unhealthy: ${UNHEALTHY}</div>
     </td></tr>
     </table>
   </td></tr>
