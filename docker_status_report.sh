@@ -30,20 +30,44 @@ CONTAINER_IDS=$(docker ps -aq | sort)
 CONTAINER_TOTAL=$(echo "$CONTAINER_IDS" | wc -l)
 IDX=0
 
-# Known component suffixes that identify separate containers belonging to the
-# same logical app (e.g. axis_post_users_db + axis_post_users_web -> axis_post_users)
-COMPONENT_SUFFIXES="db web api worker cache redis mysql postgres postgresql nginx app frontend backend queue cron scheduler proxy celery beat"
+# Known component suffixes used ONLY as a fallback when a container has no
+# docker-compose project label. Deliberately excludes generic words like
+# "api", "app", "admin", "ui", "dashboard" — those are common as real standalone
+# app names (e.g. dash-api, compliance-dashboard) and would cause false merges.
+COMPONENT_SUFFIXES="db web worker cache redis mysql postgres postgresql nginx frontend backend queue cron scheduler proxy celery beat phpmyadmin adminer mailhog smtp ftp"
 
-get_app_name() {
+get_app_name_by_suffix() {
   local n="$1"
-  local last="${n##*_}"
   for s in $COMPONENT_SUFFIXES; do
-    if [ "$last" = "$s" ]; then
-      echo "${n%_*}"
-      return
-    fi
+    case "$n" in
+      *_"$s")
+        echo "${n%_$s}"
+        return
+        ;;
+      *-"$s")
+        echo "${n%-$s}"
+        return
+        ;;
+    esac
   done
   echo "$n"
+}
+
+# Preferred grouping: docker-compose sets com.docker.compose.project on every
+# container it manages, which is the actual source of truth for "these
+# containers are one app" — far more reliable than guessing from the name.
+# Falls back to suffix-stripping only for containers with no such label
+# (e.g. started with plain `docker run`).
+get_app_name() {
+  local info="$1"
+  local name="$2"
+  local project
+  project=$(echo "$info" | jq -r '.[0].Config.Labels["com.docker.compose.project"] // empty')
+  if [ -n "$project" ]; then
+    echo "$project"
+  else
+    get_app_name_by_suffix "$name"
+  fi
 }
 
 # Severity ranking used to pick the "worst" status across an app's containers
@@ -96,8 +120,9 @@ for ID in $CONTAINER_IDS; do
   TOTAL=$((TOTAL+1))
 
   # Group this container under its app name, keeping the worst status seen
-  APP=$(get_app_name "$NAME")
+  APP=$(get_app_name "$INFO" "$NAME")
   COMPONENT="${NAME#${APP}_}"
+  [ "$COMPONENT" = "$NAME" ] && COMPONENT="${NAME#${APP}-}"
   [ "$COMPONENT" = "$NAME" ] && COMPONENT="$NAME"
   THIS_RANK=$(rank_for "$LABEL")
 
