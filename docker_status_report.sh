@@ -8,7 +8,8 @@ fi
 touch "$LOCKFILE"
 trap "rm -f $LOCKFILE" EXIT
 
-TO_RECIPIENTS="jvdumlao@gmanetwork.com avortigoza@gmanetwork.com prramos@gmanetwork.com avvillaceran@gmanetwork.com"
+#TO_RECIPIENTS="jvdumlao@gmanetwork.com avortigoza@gmanetwork.com prramos@gmanetwork.com avvillaceran@gmanetwork.com"
+TO_RECIPIENTS="avortigoza@gmanetwork.com"
 ALL_RECIPIENTS="$TO_RECIPIENTS"
 #CC_RECIPIENTS="jidoringo@gmanetwork.com jvdumlao@gmanetwork.com rcmacorol@gmanetwork.com mlnaval@gmanetwork.com prramos@gmanetwork.com fsvalois@gmanetwork.com avvillaceran@gmanetwork.com"
 #ALL_RECIPIENTS="$TO_RECIPIENTS $CC_RECIPIENTS"
