@@ -200,14 +200,14 @@ build_host_section() {
   local BORDER_COLOR="#22c55e"
   [ "$ISSUES" -gt 0 ] && BORDER_COLOR="#ef4444"
 
-  local ATTN_BLOCK=""
+  local ATTN_CARD=""
   if [ -n "$ATTN" ]; then
-    ATTN_BLOCK="
-  <tr><td style=\"height:16px;line-height:16px;font-size:0;\">&nbsp;</td></tr>
-  <tr><td style=\"background:#fff5f5;border:1px solid #fecaca;border-radius:10px;padding:20px;\">
-    <div style=\"color:#b91c1c;font-size:14px;font-weight:600;margin-bottom:10px;\">Requires attention</div>
-    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:100%;\">${ATTN}</table>
-  </td></tr>"
+    ATTN_CARD="
+<tr><td style=\"height:16px;line-height:16px;font-size:0;\">&nbsp;</td></tr>
+<tr><td style=\"background:#fff5f5;border:1px solid #fecaca;border-radius:12px;padding:20px 24px;font-family:Arial,Helvetica,sans-serif;\">
+  <div style=\"color:#b91c1c;font-size:14px;font-weight:600;margin-bottom:10px;\">${host_label} — Requires attention</div>
+  <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:100%;\">${ATTN}</table>
+</td></tr>"
   fi
 
   local SECTION="
@@ -231,9 +231,9 @@ build_host_section() {
       ${ROWS}
     </table>
   </td></tr>
-  ${ATTN_BLOCK}
   </table>
-</td></tr>"
+</td></tr>
+${ATTN_CARD}"
 
   # Set as a global, not echoed+captured — command substitution ($(...)) forks
   # a subshell, which would silently discard the GRAND_* updates below.
@@ -317,7 +317,7 @@ done
 
 ### --- Assemble final email ---
 OVERALL_COLOR="#22c55e"
-[ "$GRAND_ISSUES" -gt 0 ] && OVERALL_COLOR="#ef4444"
+[ "$GRAND_ISSUES" -gt 0 ] && OVERALL_COLOR="#f9a8d4"
 
 HEALTH_SCORE=0
 [ "$GRAND_TOTAL" -gt 0 ] && HEALTH_SCORE=$(( (GRAND_TOTAL - GRAND_ISSUES) * 100 / GRAND_TOTAL ))
