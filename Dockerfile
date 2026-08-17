@@ -1,5 +1,5 @@
 FROM alpine:latest
-RUN apk add --no-cache docker-cli msmtp bash jq ca-certificates tzdata
+RUN apk add --no-cache docker-cli msmtp bash jq curl ca-certificates tzdata
 ENV TZ=Asia/Manila
 COPY docker_status_report.sh /docker_status_report.sh
 COPY msmtprc /etc/msmtprc
