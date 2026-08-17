@@ -221,7 +221,7 @@ build_host_section() {
     <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">
     <tr><td bgcolor=\"#f9fafb\" style=\"background:#f9fafb;border-left:5px solid ${BORDER_COLOR};padding:16px 20px;border-radius:8px;\">
       <div style=\"font-size:17px;font-weight:700;color:#111827;\">${host_label}</div>
-      <div style=\"margin-top:4px;color:#6b7280;font-size:13px;\">Health Score: <strong style=\"color:#111827;\">${HOST_HEALTH_SCORE}%</strong> &middot; Total: ${TOTAL} &middot; Healthy: ${HEALTHY} &middot; Running: ${RUNNING} &middot; Stopped: ${STOPPED} &middot; Unhealthy: ${UNHEALTHY}</div>
+      <div style=\"margin-top:4px;color:#6b7280;font-size:13px;\">Health Score: <span style=\"color:#111827;font-size:16px;\">${HOST_HEALTH_SCORE}%</span> &middot; Total: ${TOTAL} &middot; Healthy: ${HEALTHY} &middot; Running: ${RUNNING} &middot; Stopped: ${STOPPED} &middot; Unhealthy: ${UNHEALTHY}</div>
     </td></tr>
     </table>
   </td></tr>
