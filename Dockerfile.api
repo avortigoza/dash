@@ -1,4 +1,4 @@
 FROM python:3.12-alpine
-RUN pip install --no-cache-dir flask docker
+RUN pip install --no-cache-dir flask docker flasgger
 COPY api_server.py /api_server.py
 CMD ["python", "/api_server.py"]
